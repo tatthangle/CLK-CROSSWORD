@@ -12,37 +12,200 @@
       --panel:#eceff1;
       --muted:#9aa3a8;
     }
-    body{font-family:Inter, system-ui, Arial; background:var(--bg); color:#222; padding:20px}
-    .app{max-width:1200px;margin:0 auto;display:flex;gap:20px}
-    .left{background:var(--panel);padding:18px;border-radius:10px;box-shadow:0 6px 20px rgba(0,0,0,0.06)}
-    h1{font-size:22px;margin:0 0 12px;color:#333; position:relative}
-    /* faded title-as-icon in background */
-    h1::after{content:"CENTRELINK FCR IMPACT";position:absolute;left:0;top:36px;font-size:48px;opacity:0.05;font-weight:900;letter-spacing:2px}
-    .grid{display:grid;grid-template-columns:repeat(16, var(--cell-size));grid-auto-rows:var(--cell-size);gap:var(--gap);background:transparent;padding:10px}
-    .cell{width:var(--cell-size);height:var(--cell-size);display:flex;align-items:center;justify-content:center;border:1px solid #c8ced3;background:#fff}
-    .block{background:transparent;border:none}
-    input.letter{width:100%;height:100%;text-transform:uppercase;border:0;font-weight:700;font-size:16px;text-align:center;background:transparent}
-    .controls{display:flex;gap:8px;margin-top:12px}
-    button{padding:8px 12px;border-radius:8px;border:0;background:var(--muted);color:#fff;cursor:pointer}
-    button:active{transform:translateY(1px)}
-    .right{flex:1;background:var(--panel);padding:18px;border-radius:10px}
-    .clues{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    .clues h3{margin:0 0 6px}
-    .score{margin-top:12px;font-weight:700}
-    .hint-area{margin-top:12px;display:flex;gap:8px;align-items:center}
-    select{padding:6px;border-radius:6px;border:1px solid #c8ced3}
-    .hint-output{padding:8px;background:#fff;border-radius:6px;border:1px solid #c8ced3;min-width:180px}
-    footer{margin-top:12px;font-size:12px;color:#555}
-    @media (max-width:980px){.app{flex-direction:column}}
+    /* Base body styles */
+	body {
+	  font-family: Inter, system-ui, Arial;
+	  background: var(--bg);
+	  color: #222;
+	  padding: 20px;
+	}
+
+	/* App layout */
+	.app {
+	  max-width: 1200px;
+	  margin: 0 auto;
+	  display: flex;
+	  gap: 20px;
+	}
+
+	.left, .right {
+	  background: var(--panel);
+	  padding: 18px;
+	  border-radius: 10px;
+	  box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+	}
+
+	/* Header with faint background text */
+	h1 {
+	  font-size: 22px;
+	  margin: 0 0 12px;
+	  color: #333;
+	  position: relative;
+	}
+
+	h1::after {
+	  content: "CENTRELINK FCR IMPACT";
+	  position: absolute;
+	  left: 0;
+	  top: 36px;
+	  font-size: 48px;
+	  opacity: 0.05;
+	  font-weight: 900;
+	  letter-spacing: 2px;
+	}
+
+	/* Crossword grid with background image */
+	#grid {
+	  position: relative;
+	  display: grid;
+	  grid-template-columns: repeat(16, var(--cell-size));
+	  grid-auto-rows: var(--cell-size);
+	  gap: var(--gap);
+	  padding: 14px;
+	  border: 4px solid #666;
+	  border-radius: 10px;
+	  box-shadow: 0 0 18px rgba(0,0,0,0.35);
+	  background-color: rgba(255,255,255,0.85);
+	}
+
+	/* Faded background image behind cells */
+	#grid::before {
+	  content: "";
+	  position: absolute;
+	  top: 0; left: 0; right: 0; bottom: 0;
+	  background: url('ICON.jpg') center/100% no-repeat;
+	  opacity: 0.1;
+	  border-radius: 10px;
+	  z-index: 0;
+	}
+
+	/* Individual cells */
+	.cell {
+	  width: var(--cell-size);
+	  height: var(--cell-size);
+	  display: flex;
+	  align-items: center;
+	  justify-content: center;
+	  border: 3px solid #555;
+	  background: #fff;
+	  position: relative;
+	  z-index: 1; /* make sure letters are above background image */
+	}
+
+	/* Empty/block cells */
+	.block {
+	  background: transparent;
+	  border: none;
+	}
+
+	/* Input letters */
+	input.letter {
+	  width: 100%;
+	  height: 100%;
+	  text-transform: uppercase;
+	  font-weight: 700;               /* bold letters */
+	  font-size: 18px;                /* bigger letters */
+	  text-align: center;
+	  color: darkgren;                     /* dark color for readability */
+	  background-color: transparent; /* bright background inside cell */
+	  border: 0;
+	  outline: none;
+	  caret-color:#00008B;              /* visible cursor */
+	  text-shadow: 0 0 3px rgba(0,0,0,0.5); /* subtle shadow for contrast */
+	}
+
+	/* Highlight focused cell */
+	.cell input.letter:focus {
+	  background-color: #f0fff0;  /* very light greenish background */
+	  box-shadow: 0 0 8px rgba(0, 100, 0, 0.5); /* soft green glow */
+	  border-radius: 2px;
+	  z-index: 2;
+	}
+
+	/* Controls & buttons */
+	.controls {
+	  display: flex;
+	  gap: 8px;
+	  margin-top: 12px;
+	}
+
+	button {
+	  padding: 8px 12px;
+	  border-radius: 8px;
+	  border: 0;
+	  background: var(--muted);
+	  color: #fff;
+	  cursor: pointer;
+	  transition: transform 0.1s;
+	}
+
+	button:active {
+	  transform: translateY(1px);
+	}
+
+	/* Right panel and clues */
+	.right {
+	  flex: 1;
+	}
+
+	.clues {
+	  display: grid;
+	  grid-template-columns: 1fr 1fr;
+	  gap: 12px;
+	}
+
+	.clues h3 {
+	  margin: 0 0 6px;
+	}
+
+	.score {
+	  margin-top: 12px;
+	  font-weight: 700;
+	}
+
+	.hint-area {
+	  margin-top: 12px;
+	  display: flex;
+	  gap: 8px;
+	  align-items: center;
+	}
+
+	select {
+	  padding: 6px;
+	  border-radius: 6px;
+	  border: 1px solid #c8ced3;
+	}
+
+	.hint-output {
+	  padding: 8px;
+	  background: #fff;
+	  border-radius: 6px;
+	  border: 1px solid #c8ced3;
+	  min-width: 180px;
+	}
+
+	footer {
+	  margin-top: 12px;
+	  font-size: 12px;
+	  color: #555;
+	}
+
+	/* Responsive layout */
+	@media (max-width:980px) {
+	  .app {
+		flex-direction: column;
+	  }
+	}
   </style>
 </head>
 <body>
   <div class="app">
     <div class="left" aria-labelledby="title">
-      <h1 id="title">Centrelink FCR Impact</h1>
-
-     
-<div id="grid" class="grid" style="background-image:url('ICON.jpg'); background-size:110%; background-repeat:no-repeat; background-position:center; opacity:0.20; border:4px solid #666; border-radius:10px; padding:14px; box-shadow:0 0 18px rgba(0,0,0,0.35); background-color:rgba(255,255,255,0.85);"></div>
+      <h1 id="title">Centrelink FCR Impact header</h1>     
+	  <div id="grid" 
+		   class="grid" 
+		   >
+	  </div>
       <div class="controls">
         <button id="showBtn">Show Result</button>
         <button id="resetBtn">Reset</button>
@@ -66,7 +229,7 @@
         </div>
       </div>
 
-      
+      <div class="score">Score: <span id="score">0</span> / 9</div>
       <footer>BEHIND EVERY WORK ITEM IS A HUMAN CUSTOMER</footer>
     </div>
 
@@ -108,7 +271,7 @@
       "      E         ",
       "      B         ",
       "      T         ",
-      " STRESSEVRITY   ",
+      " STRESSEVERITY   ",
       "       F        ",
       "       F        ",
       "       O        ",
