@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Centrelink FCR Impact — Crossword</title>
+  <style>
+    :root{
+      --cell-size:36px;
+      --gap:4px;
+      --bg:#f3f4f6;
+      --panel:#eceff1;
+      --muted:#9aa3a8;
+    }
+    body{font-family:Inter, system-ui, Arial; background:var(--bg); color:#222; padding:20px}
+    .app{max-width:1200px;margin:0 auto;display:flex;gap:20px}
+    .left{background:var(--panel);padding:18px;border-radius:10px;box-shadow:0 6px 20px rgba(0,0,0,0.06)}
+    h1{font-size:22px;margin:0 0 12px;color:#333; position:relative}
+    /* faded title-as-icon in background */
+    h1::after{content:"CENTRELINK FCR IMPACT";position:absolute;left:0;top:36px;font-size:48px;opacity:0.05;font-weight:900;letter-spacing:2px}
+    .grid{display:grid;grid-template-columns:repeat(16, var(--cell-size));grid-auto-rows:var(--cell-size);gap:var(--gap);background:transparent;padding:10px}
+    .cell{width:var(--cell-size);height:var(--cell-size);display:flex;align-items:center;justify-content:center;border:1px solid #c8ced3;background:#fff}
+    .block{background:transparent;border:none}
+    input.letter{width:100%;height:100%;text-transform:uppercase;border:0;font-weight:700;font-size:16px;text-align:center;background:transparent}
+    .controls{display:flex;gap:8px;margin-top:12px}
+    button{padding:8px 12px;border-radius:8px;border:0;background:var(--muted);color:#fff;cursor:pointer}
+    button:active{transform:translateY(1px)}
+    .right{flex:1;background:var(--panel);padding:18px;border-radius:10px}
+    .clues{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .clues h3{margin:0 0 6px}
+    .score{margin-top:12px;font-weight:700}
+    .hint-area{margin-top:12px;display:flex;gap:8px;align-items:center}
+    select{padding:6px;border-radius:6px;border:1px solid #c8ced3}
+    .hint-output{padding:8px;background:#fff;border-radius:6px;border:1px solid #c8ced3;min-width:180px}
+    footer{margin-top:12px;font-size:12px;color:#555}
+    @media (max-width:980px){.app{flex-direction:column}}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="left" aria-labelledby="title">
+      <h1 id="title">Centrelink FCR Impact</h1>
+
+     
+<div id="grid" class="grid" style="background-image:url('ICON.jpg'); background-size:110%; background-repeat:no-repeat; background-position:center; opacity:0.20; border:4px solid #666; border-radius:10px; padding:14px; box-shadow:0 0 18px rgba(0,0,0,0.35); background-color:rgba(255,255,255,0.85);"></div>
+      <div class="controls">
+        <button id="showBtn">Show Result</button>
+        <button id="resetBtn">Reset</button>
+        <div style="display:flex;align-items:center;gap:8px">
+          <select id="clueSelect" aria-label="Choose clue">
+            <optgroup label="Across">
+              <option value="A1">Across 1</option>
+              <option value="A2">Across 2</option>
+              <option value="A3">Across 3</option>
+              <option value="A4">Across 4</option>
+              <option value="A5">Across 5</option>
+            </optgroup>
+            <optgroup label="Down">
+              <option value="D6">Down 6</option>
+              <option value="D7">Down 7</option>
+              <option value="D8">Down 8</option>
+              <option value="D9">Down 9</option>
+            </optgroup>
+          </select>
+          <button id="hintBtn">Hint</button>
+        </div>
+      </div>
+
+      
+      <footer>BEHIND EVERY WORK ITEM IS A HUMAN CUSTOMER</footer>
+    </div>
+
+    <div class="right">
+      <div class="clues">
+        <div>
+          <h3>Across</h3>
+          <p><strong>1.</strong> The result of FCR failure that formally expresses customer dissatisfaction to the agency. (10)</p>
+          <p><strong>2.</strong> The rate at which customers give up on the service or leave the system. (5)</p>
+          <p><strong>3.</strong> Financial hardship occurs when there is a _________ in payment receipt. (5)</p>
+          <p><strong>4.</strong> The customer's sense of strain and worry over their financial situation. (6)</p>
+          <p><strong>5.</strong> The key word describing the serious nature of the consequences for the client. (8)</p>
+        </div>
+        <div>
+          <h3>Down</h3>
+          <p><strong>6.</strong> One of the essential needs put at risk when payments are disrupted (home). (7)</p>
+          <p><strong>7.</strong> What essential financial support is called (what Centrelink provides). (6)</p>
+          <p><strong>8.</strong> A possible financial consequence where the client might owe money back due to an administrative or reporting error. (4)</p>
+          <p><strong>9.</strong> This metric increases dramatically as customers are forced to contact the agency multiple times. (6)</p>
+        </div>
+      </div>
+
+      <div class="hint-area">
+        <div class="hint-output" id="hintOut">Select a clue and press Hint to reveal the keyword.</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // YOUR EXACT TEMPLATE (16 rows x 16 cols) — solution letters are taken from these strings.
+    const template = [
+      "  H             ",
+      " COMPLAINTS     ",
+      "  U    N        ",
+      "  S    CHURN    ",
+      "  I    O        ",
+      "  N    M       ",
+      "  G   DELAY     ",
+      "      E         ",
+      "      B         ",
+      "      T         ",
+      " STRESSEVRITY   ",
+      "       F        ",
+      "       F        ",
+      "       O        ",
+      "       R        ",
+      "       T        "
+    ];
+
+    // Build a 2D array of solution chars (space means block)
+    const rows = template.length; // 16
+    const cols = template[0].length; // should be 16
+    const solution = [];
+    for (let r = 0; r < rows; r++) {
+      const line = template[r];
+      // ensure length exactly cols
+      const padded = (line + " ".repeat(cols)).slice(0, cols);
+      solution.push(padded.split(''));
+    }
+
+    // Known keyword map for hints (user-provided keywords)
+    const hints = {
+      A1: 'COMPLAINTS', A2: 'CHURN', A3: 'DELAY', A4: 'STRESS', A5: 'SEVERITY',
+      D6: 'HOUSING', D7: 'INCOME', D8: 'DEBT', D9: 'EFFORT'
+    };
+
+    // The canonical answers (we will find their positions automatically)
+    const canonicalAnswers = {
+      'COMPLAINTS':'ACROSS', 'CHURN':'ACROSS', 'DELAY':'ACROSS', 'STRESS':'ACROSS', 'SEVERITY':'ACROSS',
+      'HOUSING':'DOWN', 'INCOME':'DOWN', 'DEBT':'DOWN', 'EFFORT':'DOWN'
+    };
+
+    // helper: try to match an answer at (r,c) horizontally or vertically
+    function matchesAt(r,c,answer,dir) {
+      if (dir === 'across') {
+        if (c + answer.length > cols) return false;
+        for (let i=0;i<answer.length;i++){
+          if (solution[r][c+i] !== answer[i]) return false;
+        }
+        return true;
+      } else {
+        if (r + answer.length > rows) return false;
+        for (let i=0;i<answer.length;i++){
+          if (solution[r+i][c] !== answer[i]) return false;
+        }
+        return true;
+      }
+    }
+
+    // Find start positions for all canonical answers by scanning grid
+    const foundWords = {}; // e.g. { 'COMPLAINTS': {row, col, dir} }
+    const answersList = Object.keys(canonicalAnswers);
+    for (const ans of answersList) {
+      let found = false;
+      const dirPreferred = canonicalAnswers[ans] === 'ACROSS' || canonicalAnswers[ans] === 'ACROSS' ? 'across' : 'down';
+      // Try all cells
+      for (let r=0; r<rows && !found; r++){
+        for (let c=0; c<cols && !found; c++){
+          if (solution[r][c] !== ans[0]) continue;
+          // try across
+          if (matchesAt(r,c,ans,'across')) {
+            foundWords[ans] = {row:r, col:c, dir:'across'};
+            found = true; break;
+          }
+          // try down
+          if (matchesAt(r,c,ans,'down')) {
+            foundWords[ans] = {row:r, col:c, dir:'down'};
+            found = true; break;
+          }
+        }
+      }
+      if (!found) {
+        // don't block; just leave it missing — but that shouldn't happen with correct template
+        console.warn('Could not find word in template:', ans);
+      }
+    }
+
+    // Build grid UI: every non-space in template becomes an editable input
+    const gridEl = document.getElementById('grid');
+    const cells = []; // {r,c,el}
+    for (let r=0;r<rows;r++){
+      for (let c=0;c<cols;c++){
+        const ch = solution[r][c];
+        const cell = document.createElement('div');
+        cell.className = 'cell';
+        if (!ch || ch === ' ') {
+          cell.classList.add('block');
+          cell.innerHTML = '';
+        } else {
+          const inp = document.createElement('input');
+          inp.className = 'letter';
+          inp.setAttribute('maxlength','1');
+          inp.setAttribute('aria-label', `Row ${r+1} Column ${c+1}`);
+          inp.dataset.r = r; inp.dataset.c = c;
+          inp.value = '';
+          // Only allow letters
+          inp.addEventListener('input', e=>{
+            e.target.value = e.target.value.toUpperCase().replace(/[^A-Z]/g,'').slice(0,1);
+          });
+          // Optional: focus style on click
+          cell.appendChild(inp);
+          cells.push({r,c,el:inp});
+        }
+        gridEl.appendChild(cell);
+      }
+    }
+
+    // Helper to get input at position
+    function inputAt(r,c) {
+      return document.querySelector(`input.letter[data-r='${r}'][data-c='${c}']`);
+    }
+
+    // Build an array of word objects for score checking (from foundWords)
+    const words = [];
+    for (const [ans, pos] of Object.entries(foundWords)) {
+      words.push({
+        answer: ans,
+        row: pos.row,
+        col: pos.col,
+        dir: pos.dir
+      });
+    }
+
+    // compute how many canonical words are exactly entered
+    function computeScoreFromEntries(){
+      let correct = 0;
+      for (const w of words) {
+        let extracted = '';
+        for (let i=0;i<w.answer.length;i++){
+          const rr = w.row + (w.dir==='down'?i:0);
+          const cc = w.col + (w.dir==='across'?i:0);
+          const el = inputAt(rr,cc);
+          extracted += el ? (el.value || '') : '';
+        }
+        if (extracted.toUpperCase() === w.answer) correct++;
+      }
+      return correct;
+    }
+
+    // Show Result: reveal letters and set score based on current correct answers
+    document.getElementById('showBtn').addEventListener('click', ()=>{
+      const correct = computeScoreFromEntries();
+      // fill all inputs with solution letters (reveal)
+      for (const cell of cells) {
+        const letter = solution[cell.r][cell.c];
+        cell.el.value = letter || '';
+      }
+      document.getElementById('score').textContent = correct + ' / 9';
+    });
+
+    // Reset: clear inputs and reset score/hint
+    document.getElementById('resetBtn').addEventListener('click', ()=>{
+      for (const cell of cells) cell.el.value = '';
+      document.getElementById('score').textContent = '0';
+      document.getElementById('hintOut').textContent = 'Select a clue and press Hint to reveal the keyword.';
+    });
+
+    // Hint: reveal keyword for selected clue (full word)
+    document.getElementById('hintBtn').addEventListener('click', ()=>{
+      const sel = document.getElementById('clueSelect').value;
+      const word = hints[sel];
+      if (!word) {
+        document.getElementById('hintOut').textContent = 'No hint available.';
+        return;
+      }
+      // show the keyword text
+      document.getElementById('hintOut').textContent = word;
+      // optionally, put the first letter of that word into the first input for a tiny nudge (commented out)
+      // const pos = foundWords[word];
+      // if (pos) {
+      //   const first = inputAt(pos.row, pos.col);
+      //   if (first) first.value = word[0];
+      // }
+    });
+
+    // Accessibility: Enter moves right
+    gridEl.addEventListener('keydown', e=>{
+      const t = e.target;
+      if (t.tagName === 'INPUT') {
+        if (e.key === 'Enter') {
+          const r = Number(t.dataset.r), c = Number(t.dataset.c);
+          for (let nc=c+1; nc<cols; nc++){
+            const next = inputAt(r,nc);
+            if (next){ next.focus(); break; }
+          }
+        }
+      }
+    });
+
+    // Optional: show debug positions in console
+    console.log('Found words and positions', foundWords);
+  </script>
+</body>
+</html>
