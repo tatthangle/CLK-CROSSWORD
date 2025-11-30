@@ -404,27 +404,88 @@
           const el = inputAt(rr,cc);
           extracted += el ? (el.value || '') : '';
         }
-        if (extracted.toUpperCase() === w.answer) correct++;
+        if (extracted.toUpperCase() === w.answer) {
+		correct++;
+		
+		}
       }
       return correct;
     }
 
     // Show Result: reveal letters and set score based on current correct answers
-    document.getElementById('showBtn').addEventListener('click', ()=>{
-      const correct = computeScoreFromEntries();
-      // fill all inputs with solution letters (reveal)
-      for (const cell of cells) {
-        const letter = solution[cell.r][cell.c];
-        cell.el.value = letter || '';
+    document.getElementById('showBtn').addEventListener('click', () => {
+
+  // Track correctness per cell so overlapping words don't overwrite each other
+  const cellCorrectMap = {};
+
+  let correctWords = 0;
+
+  words.forEach(w => {
+    let isWordCorrect = true;
+
+    for (let i = 0; i < w.answer.length; i++) {
+      const rr = w.row + (w.dir === 'down' ? i : 0);
+      const cc = w.col + (w.dir === 'across' ? i : 0);
+      const key = rr + "-" + cc;
+
+      const input = inputAt(rr, cc);
+      const correctLetter = solution[rr][cc];
+      const userLetter = input.value.toUpperCase();
+
+      // Always reveal correct letter
+      input.value = correctLetter;
+
+      // Track whether THIS particular cell was typed correctly
+      const isCorrect = userLetter === correctLetter;
+
+      // If any letter wrong, word isn't fully correct
+      if (!isCorrect) isWordCorrect = false;
+
+      // Store correctness once
+      if (!(key in cellCorrectMap)) {
+        cellCorrectMap[key] = isCorrect;
+      } else {
+        // If either word is wrong on this cell, it's wrong
+        cellCorrectMap[key] = cellCorrectMap[key] && isCorrect;
       }
-      document.getElementById('score').textContent = correct + ' / 9';
-    });
+    }
+
+    if (isWordCorrect) correctWords++;
+  });
+
+  // APPLY COLORS ONLY ONCE PER CELL
+  Object.keys(cellCorrectMap).forEach(key => {
+    const [rr, cc] = key.split("-").map(Number);
+    const input = inputAt(rr, cc);
+
+    if (cellCorrectMap[key]) {
+      input.style.backgroundColor = "rgba(0,160,0,0.75)";
+      input.style.color = "white";
+      input.style.fontWeight = "bold";
+    } else {
+      input.style.backgroundColor = "";
+      input.style.color = "";
+      input.style.fontWeight = "";
+    }
+  });
+
+  document.getElementById("score").textContent = correctWords + " / 9";
+});
+
+
 
     // Reset: clear inputs and reset score/hint
     document.getElementById('resetBtn').addEventListener('click', ()=>{
-      for (const cell of cells) cell.el.value = '';
+      for (const cell of cells) {
+		cell.el.value = '';
+		cell.el.style.backgroundColor = '';
+		cell.el.style.color = '';
+		cell.el.style.fontWeight = '';
+		cell.el.style.border = '';
+	  }
       document.getElementById('score').textContent = '0';
       document.getElementById('hintOut').textContent = 'Select a clue and press Hint to reveal the keyword.';
+	  
     });
 
     // Hint: reveal keyword for selected clue (full word)
@@ -464,4 +525,3 @@
   </script>
 </body>
 </html>
-
