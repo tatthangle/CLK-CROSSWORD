@@ -113,7 +113,17 @@
 	  caret-color:#00008B;              /* visible cursor */
 	  text-shadow: 0 0 3px rgba(0,0,0,0.5); /* subtle shadow for contrast */
 	}
-
+	
+	.cell-number {
+		  position: absolute;
+		  top: 2px;
+		  left: 4px;
+		  font-size: 10px;
+		  font-weight: 700;
+		  color: #333;
+		  opacity: 0.85;
+		  pointer-events: none;
+		}
 	/* Highlight focused cell */
 	.cell input.letter:focus {
 	  background-color: #f0fff0;  /* very light greenish background */
@@ -376,6 +386,28 @@
         gridEl.appendChild(cell);
       }
     }
+	
+	//add number
+	function putNumberAt(row, col, label) {
+	  const cellIndex = row * cols + col;
+	  const cell = gridEl.children[cellIndex];
+
+	  if (!cell) return;
+
+	  const num = document.createElement('div');
+	  num.className = 'cell-number';
+	  num.textContent = label; // ← STRING here
+	  cell.appendChild(num);
+	}
+	putNumberAt(1, 1, "1");  // row 1, col 2 → number 1
+	putNumberAt(3, 7, "2");  
+	putNumberAt(6, 6, "3 8");// row 3, col 5 → number 2
+	putNumberAt(10, 1, "4");
+	putNumberAt(10, 6, "5");
+	putNumberAt(0, 2, "6");
+	putNumberAt(1, 7, "7");
+	
+	putNumberAt(10, 7, "9");
 
     // Helper to get input at position
     function inputAt(r,c) {
@@ -525,4 +557,3 @@
   </script>
 </body>
 </html>
-
